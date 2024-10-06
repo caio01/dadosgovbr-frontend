@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos Capturados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f4f4f9;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="container mx-auto p-6">
+        <!-- Exemplo de Cartão de Pedido -->
+        <div id="pedidos-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Cartões de Pedidos serão renderizados aqui via JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Dados simulados (substitua pelos dados capturados)
+        const pedidos = [
+            {
+                cpf: '090.041.763-30',
+                protocolo: '397602017',
+                data: '31/08/2023',
+                descricao: 'Meu INSS - Requerimentos',
+                status: 'Ativo'
+            },
+            {
+                cpf: '003.239.493-47',
+                protocolo: '487601532',
+                data: '12/10/2023',
+                descricao: 'Meu INSS - Requerimentos',
+                status: 'Ativo'
+            }
+        ];
+
+        // Função para renderizar os pedidos
+        function renderPedidos() {
+            const container = document.getElementById('pedidos-container');
+
+            pedidos.forEach(pedido => {
+                const pedidoDiv = document.createElement('div');
+                pedidoDiv.classList.add('bg-white', 'shadow-lg', 'rounded-lg', 'p-6', 'transition', 'duration-500', 'hover:shadow-xl');
+
+                pedidoDiv.innerHTML = `
+                    <div class="mb-4">
+                        <span class="text-gray-500 font-semibold">CPF:</span>
+                        <span class="text-gray-800 font-bold">${pedido.cpf}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-gray-500">Protocolo:</span>
+                        <span class="text-gray-800">${pedido.protocolo}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-gray-500">Data:</span>
+                        <span class="text-gray-800">${pedido.data}</span>
+                    </div>
+                    <div class="mb-4">
+                        <span class="text-gray-500">Descrição:</span>
+                        <span class="text-gray-800">${pedido.descricao}</span>
+                    </div>
+                    <div class="text-${pedido.status === 'Ativo' ? 'green' : 'red'}-500 font-bold">
+                        Status: ${pedido.status}
+                    </div>
+                `;
+
+                container.appendChild(pedidoDiv);
+            });
+        }
+
+        // Chama a função para renderizar os pedidos
+        renderPedidos();
+    </script>
+</body>
+</html>
