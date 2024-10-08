@@ -1,0 +1,7 @@
+[build]
+  publish = "public"
+  functions = "functions"  # Diretório onde suas funções serverless estão
+
+[environment]
+  API_KEY = "ENV_API_KEY"
+  BIN_ID = "ENV_BIN_ID"
