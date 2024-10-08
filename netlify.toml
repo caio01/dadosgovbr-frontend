@@ -3,7 +3,7 @@
   functions = "functions"  # Diretório onde suas funções serverless estão
   
 [[redirects]]
-  from = "/login"
+  from = "/login/*"
   to = "/login/login.html"
   status = 200
   force = true
