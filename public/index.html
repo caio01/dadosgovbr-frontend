@@ -55,6 +55,7 @@
                 <button id="search-btn" class="button bg-blue-500 text-white p-2 rounded-lg shadow-lg transform transition-all duration-300 ease-in-out">
                     <span class="mr-2">Pesquisar</span>
                 </button>
+                
             </div>
         </div>
 
@@ -104,6 +105,144 @@
         let currentPage = 1;
         let itemsPerPage = 10;
 
+        // Função para ordenar por status com base em prioridade
+        function sortByStatus(a, b) {
+            const statusOrder = { 'Concluído': 1, 'Análise': 2, 'Pendente': 3 };
+            return statusOrder[a.status] - statusOrder[b.status];
+        }
+
+        // Função para ordenar os pedidos
+        function sortPedidos(pedidosFiltrados, sortBy, sortOrder) {
+            if (sortBy === 'data') {
+                pedidosFiltrados.sort((a, b) => {
+                    if (sortOrder === 'asc') {
+                        return new Date(a.data) - new Date(b.data);
+                    } else {
+                        return new Date(b.data) - new Date(a.data);
+                    }
+                });
+            } else if (sortBy === 'status') {
+                pedidosFiltrados.sort((a, b) => {
+                    if (sortOrder === 'asc') {
+                        return sortByStatus(a, b);
+                    } else {
+                        return sortByStatus(b, a);
+                    }
+                });
+            }
+            return pedidosFiltrados;
+        }
+
+        // Função para filtrar os pedidos
+        function filtrarPedidos() {
+            const cpfInput = document.getElementById('cpf-input').value.trim();
+            const protocoloInput = document.getElementById('protocolo-input').value.trim();
+            const statusFilter = document.getElementById('status-filter').value;
+
+            let pedidosFiltrados = pedidos;
+
+            // Filtra por CPF se preenchido
+            if (cpfInput !== '') {
+                pedidosFiltrados = pedidosFiltrados.filter(pedido => pedido.cpf.includes(cpfInput));
+            }
+
+            // Filtra por Protocolo se preenchido
+            if (protocoloInput !== '') {
+                pedidosFiltrados = pedidosFiltrados.filter(pedido => pedido.protocolo.includes(protocoloInput));
+            }
+
+            // Filtra por Status se selecionado
+            if (statusFilter !== '') {
+                pedidosFiltrados = pedidosFiltrados.filter(pedido => pedido.status === statusFilter);
+            }
+
+            // Aplica a ordenação antes de renderizar
+            applySortAndRender(pedidosFiltrados);
+        }
+
+        // Função para aplicar a ordenação e renderizar
+        function applySortAndRender(pedidosFiltrados = pedidos) {
+            const sortBy = document.getElementById('sort-by').value;
+            const sortOrder = document.getElementById('sort-order').value;
+            const sortedPedidos = sortPedidos(pedidosFiltrados, sortBy, sortOrder);
+            renderPedidos(sortedPedidos, currentPage);
+        }
+
+        // Função para renderizar os pedidos como lista com botão para expandir mais informações
+        function renderPedidos(pedidosFiltrados, page = 1) {
+            const container = document.getElementById('pedidos-container');
+            container.innerHTML = ''; // Limpa o conteúdo anterior
+
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = page * itemsPerPage;
+            const pedidosPaginados = pedidosFiltrados.slice(startIndex, endIndex);
+
+            if (pedidosPaginados.length === 0) {
+                container.innerHTML = '<p class="text-red-500 animate__animated animate__fadeIn">Nenhum pedido encontrado.</p>';
+                return;
+            }
+
+            pedidosPaginados.forEach((pedido, index) => {
+                const pedidoDiv = document.createElement('div');
+                pedidoDiv.classList.add('bg-white', 'shadow-lg', 'rounded-lg', 'p-4', 'mb-4', 'animate__animated', 'animate__fadeIn');
+
+                // Define a cor do status com base no valor do status
+                let statusColor = 'text-gray-500'; // Default color
+                if (pedido.status === 'Concluído') {
+                    statusColor = 'text-green-500'; // Verde para "Concluído"
+                } else if (pedido.status === 'Análise') {
+                    statusColor = 'text-yellow-500'; // Amarelo para "Análise"
+                } else if (pedido.status === 'Pendente') {
+                    statusColor = 'text-red-500'; // Vermelho para "Pendente"
+                }
+
+                // Inicialmente, as informações adicionais estão ocultas
+                const hiddenInfoId = `hidden-info-${index}`;
+
+                pedidoDiv.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <span class="text-gray-500 font-semibold mr-2">CPF:</span>
+                            <span class="text-gray-800 font-bold">${pedido.cpf}</span>
+                            <span class="ml-4 ${statusColor}">(${pedido.status})</span>
+                        </div>
+                        <button class="text-blue-500 font-bold text-xl" onclick="toggleInfo(${index})">+</button>
+                    </div>
+                    <div id="${hiddenInfoId}" class="expandable mt-4">
+                        <ul class="list-disc pl-5">
+                            <li class="mb-2">
+                                <span class="text-gray-500">Protocolo:</span>
+                                <span class="text-gray-800">${pedido.protocolo}</span>
+                            </li>
+                            <li class="mb-2">
+                                <span class="text-gray-500">Data:</span>
+                                <span class="text-gray-800">${pedido.data || 'Indefinido'}</span>
+                            </li>
+                            <li class="mb-2">
+                                <span class="text-gray-500">Descrição:</span>
+                                <span class="text-gray-800">${pedido.descricao || 'Indefinido'}</span>
+                            </li>
+                        </ul>
+                    </div>
+                `;
+
+                container.appendChild(pedidoDiv);
+            });
+
+            // Atualiza o status da paginação
+            document.getElementById('page-info').innerText = `Página ${currentPage} de ${Math.ceil(pedidosFiltrados.length / itemsPerPage)}`;
+        }
+
+        // Função para mostrar/esconder mais informações com animação
+        function toggleInfo(index) {
+            const infoDiv = document.getElementById(`hidden-info-${index}`);
+            if (infoDiv.classList.contains('expanded')) {
+                infoDiv.classList.remove('expanded');
+            } else {
+                infoDiv.classList.add('expanded');
+            }
+        }
+
         // Função para buscar os pedidos da função serverless no Netlify
         function fetchPedidos() {
             fetch('/.netlify/functions/fetchPedidos') // Chama a função serverless no Netlify
@@ -117,48 +256,31 @@
                 });
         }
 
-        // Função para renderizar os pedidos na página
-        function renderPedidos(pedidos, page) {
-            const container = document.getElementById('pedidos-container');
-            container.innerHTML = ''; // Limpa o conteúdo anterior
-
-            const startIndex = (page - 1) * itemsPerPage;
-            const endIndex = page * itemsPerPage;
-            const pedidosPaginados = pedidos.slice(startIndex, endIndex);
-
-            if (pedidosPaginados.length === 0) {
-                container.innerHTML = '<p class="text-red-500 animate__animated animate__fadeIn">Nenhum pedido encontrado.</p>';
-                return;
+        // Função para mudar de página
+        document.getElementById('next-page-btn').addEventListener('click', () => {
+            const totalPages = Math.ceil(pedidos.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderPedidos(pedidos, currentPage);
             }
+        });
 
-            pedidosPaginados.forEach((pedido, index) => {
-                const pedidoDiv = document.createElement('div');
-                pedidoDiv.classList.add('bg-white', 'shadow-lg', 'rounded-lg', 'p-4', 'mb-4', 'animate__animated', 'animate__fadeIn');
+        document.getElementById('prev-page-btn').addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderPedidos(pedidos, currentPage);
+            }
+        });
 
-                let statusColor = 'text-gray-500';
-                if (pedido.status === 'Concluído') {
-                    statusColor = 'text-green-500';
-                } else if (pedido.status === 'Análise') {
-                    statusColor = 'text-yellow-500';
-                } else if (pedido.status === 'Pendente') {
-                    statusColor = 'text-red-500';
-                }
+        // Função para mudar o número de itens por página
+        document.getElementById('items-per-page').addEventListener('change', (event) => {
+            itemsPerPage = parseInt(event.target.value);
+            currentPage = 1; // Reset para a primeira página
+            renderPedidos(pedidos, currentPage);
+        });
 
-                pedidoDiv.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex items-center">
-                            <span class="text-gray-500 font-semibold mr-2">CPF:</span>
-                            <span class="text-gray-800 font-bold">${pedido.cpf}</span>
-                            <span class="ml-4 ${statusColor}">(${pedido.status})</span>
-                        </div>
-                    </div>
-                `;
-
-                container.appendChild(pedidoDiv);
-            });
-
-            document.getElementById('page-info').innerText = `Página ${currentPage} de ${Math.ceil(pedidos.length / itemsPerPage)}`;
-        }
+        // Event listener para o botão de pesquisa
+        document.getElementById('search-btn').addEventListener('click', filtrarPedidos);
 
         // Chama a função para buscar e renderizar os pedidos no carregamento da página
         fetchPedidos();
