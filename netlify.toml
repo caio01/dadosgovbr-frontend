@@ -1,0 +1,7 @@
+[build]
+  publish = "public"
+  command = "npm run build"
+
+[environment]
+  API_KEY = "ENV_API_KEY"
+  BIN_ID = "ENV_BIN_ID"
