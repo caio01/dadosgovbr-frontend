@@ -4,7 +4,7 @@
   
 [[redirects]]
   from = "/login"
-  to = "/login.html"
+  to = "/login/login.html"
   status = 200
   force = true
 
