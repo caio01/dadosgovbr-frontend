@@ -104,14 +104,9 @@
         let currentPage = 1;
         let itemsPerPage = 10;
 
-        // Função para aplicar filtros, ordenação e renderizar
-        function filtrarPedidos() {
-            // O código de filtragem e ordenação permanece o mesmo...
-        }
-
         // Função para buscar os pedidos da função serverless no Netlify
         function fetchPedidos() {
-            fetch('/.netlify/functions/fetchPedidos')
+            fetch('/.netlify/functions/fetchPedidos') // Chama a função serverless no Netlify
                 .then(response => response.json())
                 .then(data => {
                     pedidos = data; // Armazena todos os pedidos
@@ -120,6 +115,49 @@
                 .catch(error => {
                     console.error('Erro ao buscar dados da API:', error);
                 });
+        }
+
+        // Função para renderizar os pedidos na página
+        function renderPedidos(pedidos, page) {
+            const container = document.getElementById('pedidos-container');
+            container.innerHTML = ''; // Limpa o conteúdo anterior
+
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = page * itemsPerPage;
+            const pedidosPaginados = pedidos.slice(startIndex, endIndex);
+
+            if (pedidosPaginados.length === 0) {
+                container.innerHTML = '<p class="text-red-500 animate__animated animate__fadeIn">Nenhum pedido encontrado.</p>';
+                return;
+            }
+
+            pedidosPaginados.forEach((pedido, index) => {
+                const pedidoDiv = document.createElement('div');
+                pedidoDiv.classList.add('bg-white', 'shadow-lg', 'rounded-lg', 'p-4', 'mb-4', 'animate__animated', 'animate__fadeIn');
+
+                let statusColor = 'text-gray-500';
+                if (pedido.status === 'Concluído') {
+                    statusColor = 'text-green-500';
+                } else if (pedido.status === 'Análise') {
+                    statusColor = 'text-yellow-500';
+                } else if (pedido.status === 'Pendente') {
+                    statusColor = 'text-red-500';
+                }
+
+                pedidoDiv.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="flex items-center">
+                            <span class="text-gray-500 font-semibold mr-2">CPF:</span>
+                            <span class="text-gray-800 font-bold">${pedido.cpf}</span>
+                            <span class="ml-4 ${statusColor}">(${pedido.status})</span>
+                        </div>
+                    </div>
+                `;
+
+                container.appendChild(pedidoDiv);
+            });
+
+            document.getElementById('page-info').innerText = `Página ${currentPage} de ${Math.ceil(pedidos.length / itemsPerPage)}`;
         }
 
         // Chama a função para buscar e renderizar os pedidos no carregamento da página
