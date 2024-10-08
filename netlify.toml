@@ -1,6 +1,0 @@
-[build]
-  publish = "public"
-
-[environment]
-  API_KEY = "ENV_API_KEY"
-  BIN_ID = "ENV_BIN_ID"
