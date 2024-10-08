@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Seguro com Netlify Identity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <style>
+        body {
+            background-color: #f4f4f9;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6 text-center">Login Seguro</h1>
+
+        <div id="login-container" class="bg-white shadow-lg rounded-lg p-8">
+            <form id="login-form">
+                <label for="email" class="block mb-2 text-sm font-medium text-gray-700">E-mail:</label>
+                <input type="email" id="email" name="email" class="input w-full p-2 border border-gray-300 rounded-md shadow-sm mb-4" required>
+
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-700">Senha:</label>
+                <input type="password" id="password" name="password" class="input w-full p-2 border border-gray-300 rounded-md shadow-sm mb-4" required>
+
+                <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-lg shadow-lg transition-all duration-300 ease-in-out">Login</button>
+            </form>
+
+            <div class="mt-4 text-center">
+                <a href="#" id="register-link" class="text-blue-500">Registrar-se</a>
+            </div>
+        </div>
+
+        <div id="user-info" class="mt-6 text-center hidden">
+            <h2 class="text-2xl font-bold">Bem-vindo, <span id="user-name"></span></h2>
+            <button id="logout-btn" class="mt-4 bg-red-500 text-white p-2 rounded-lg shadow-lg">Sair</button>
+        </div>
+    </div>
+
+    <script>
+        netlifyIdentity.init();
+
+        const loginForm = document.getElementById('login-form');
+        const loginContainer = document.getElementById('login-container');
+        const userInfo = document.getElementById('user-info');
+        const userName = document.getElementById('user-name');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        loginForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            netlifyIdentity.login(email, password, true)
+                .then(user => {
+                    loginContainer.classList.add('hidden');
+                    userInfo.classList.remove('hidden');
+                    userName.textContent = user.user_metadata.full_name || user.email;
+                    window.location.href = "./public/index.html"; // Redireciona para a página principal após login
+                })
+                .catch(error => {
+                    alert("Erro ao fazer login: " + error.message);
+                });
+        });
+
+        document.getElementById('register-link').addEventListener('click', function () {
+            netlifyIdentity.open('signup');
+        });
+
+        logoutBtn.addEventListener('click', function () {
+            netlifyIdentity.logout();
+            loginContainer.classList.remove('hidden');
+            userInfo.classList.add('hidden');
+        });
+
+        netlifyIdentity.on('init', user => {
+            if (user) {
+                loginContainer.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                userName.textContent = user.user_metadata.full_name || user.email;
+            }
+        });
+    </script>
+</body>
+</html>
