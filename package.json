@@ -1,0 +1,12 @@
+{
+  "name": "meu-projeto-netlify",
+  "version": "1.0.0",
+  "description": "Projeto para Netlify com fun\u00e7\u00f5es serverless",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Nada para construir'"
+  },
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
