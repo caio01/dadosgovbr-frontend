@@ -101,6 +101,15 @@
     </div>
 
     <script>
+        // Inicializa o Netlify Identity
+        netlifyIdentity.init();
+        // Verifica se o usuário está autenticado ao carregar a página
+        netlifyIdentity.on('init', user => {
+            if (!user) {
+                // Se o usuário não estiver logado, redireciona para a página de login
+                window.location.href = "./login/login.html";
+            }
+        });
         let pedidos = [];
         let currentPage = 1;
         let itemsPerPage = 10;
